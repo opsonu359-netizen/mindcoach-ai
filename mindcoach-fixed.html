@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MindCoach AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080d;--s1:#0e1018;--s2:#13161f;--s3:#191d29;--s4:#1f2435;
+  --b1:#1e2336;--b2:#262d44;--b3:#303854;
+  --p:#8b7ff5;--p2:#a99bf7;--p3:#6a5de8;
+  --r:#f2607a;--r2:#ff8fa3;
+  --g:#4ef0c0;--g2:#7ff5d4;
+  --y:#f5c842;--y2:#ffd96b;
+  --t:#e6e8f4;--t2:#9da3bf;--t3:#5a6080;
+  --ub:#161d3a;--ab:#0f1428;
+  --grad-p:linear-gradient(135deg,#8b7ff5,#f2607a);
+  --grad-g:linear-gradient(135deg,#4ef0c0,#8b7ff5);
+  --grad-y:linear-gradient(135deg,#f5c842,#f2607a);
+  --shadow-p:0 8px 32px rgba(139,127,245,0.25);
+  --shadow-r:0 8px 32px rgba(242,96,122,0.25);
+  --shadow-g:0 8px 32px rgba(78,240,192,0.2);
+  --r-sm:12px;--r-md:18px;--r-lg:24px;--r-xl:32px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:'Inter',sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased;}
+body{display:flex;flex-direction:column;height:100dvh;position:relative;}
+
+/* ══ AMBIENT BG ══ */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;contain:strict;}
+.orb{position:absolute;border-radius:50%;opacity:0.12;animation:drift 20s ease-in-out infinite;will-change:transform;}
+.orb1{width:400px;height:400px;background:var(--p);top:-100px;left:-100px;animation-delay:0s;}
+.orb2{width:300px;height:300px;background:var(--r);bottom:-80px;right:-80px;animation-delay:-8s;}
+.orb3{width:200px;height:200px;background:var(--g);top:40%;left:40%;animation-delay:-4s;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.05);}66%{transform:translate(-20px,30px) scale(0.95);}}
+
+/* ══ HEADER ══ */
+header{position:relative;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(7,8,13,0.85);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(20px);flex-shrink:0;}
+.logo-wrap{display:flex;align-items:center;gap:11px;}
+.logo-orb{width:36px;height:36px;border-radius:11px;background:var(--grad-p);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow-p);position:relative;overflow:hidden;}
+.logo-orb::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);border-radius:inherit;}
+.logo-name{font-family:'Instrument Serif',serif;font-size:20px;letter-spacing:-0.3px;}
+.logo-name em{font-style:italic;background:var(--grad-p);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-tag{font-size:8.5px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:-3px;}
+.hdr-actions{display:flex;align-items:center;gap:8px;}
+.hdr-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:6px 12px;font-size:11px;font-family:'Inter',sans-serif;color:var(--t2);cursor:pointer;transition:background 0.2s,border-color 0.2s,color 0.2s;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(139,127,245,0.12);border-color:rgba(139,127,245,0.3);color:var(--p2);}
+.hdr-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+.streak-pill{background:rgba(78,240,192,0.08);border:1px solid rgba(78,240,192,0.2);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--g);display:flex;align-items:center;gap:5px;}
+
+/* ══ FLOATING TIMER ══ */
+.float-timer{position:fixed;top:66px;right:14px;z-index:100;display:none;flex-direction:column;align-items:center;background:rgba(14,16,24,0.92);border:1px solid rgba(242,96,122,0.4);border-radius:20px;padding:10px 16px;backdrop-filter:blur(24px);box-shadow:var(--shadow-r),inset 0 1px 0 rgba(255,255,255,0.06);cursor:pointer;min-width:96px;transition:all 0.25s;}
+.float-timer.on{display:flex;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 8px 32px rgba(242,96,122,0.3),inset 0 1px 0 rgba(255,255,255,0.06);}
+.float-timer.done-state{border-color:rgba(78,240,192,0.4);box-shadow:var(--shadow-g);animation:none;}
+@keyframes popIn{from{opacity:0;transform:translateY(-12px) scale(0.8);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+.ft-eyebrow{font-size:8px;color:var(--r2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:3px;}
+.ft-digits{font-family:'Instrument Serif',serif;font-size:24px;color:#fff;line-height:1;letter-spacing:-1px;will-change:contents;contain:layout style;min-width:56px;display:block;text-align:center;}
+.ft-track{width:100%;height:2px;background:rgba(255,255,255,0.08);border-radius:1px;margin-top:6px;overflow:hidden;}
+.ft-fill{height:100%;background:var(--grad-p);border-radius:1px;width:0%;transition:width 0.95s linear;}
+.ft-hint{font-size:8px;color:rgba(255,255,255,0.3);margin-top:4px;}
+.float-timer.done-state .ft-eyebrow{color:var(--g);}
+.float-timer.done-state .ft-digits{font-size:14px;color:var(--g);}
+
+/* ══ MOOD STRIP ══ */
+.mood-wrap{position:relative;z-index:10;background:rgba(7,8,13,0.7);border-bottom:1px solid rgba(255,255,255,0.04);padding:10px 16px;flex-shrink:0;backdrop-filter:blur(12px);}
+.mood-scroll{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;align-items:center;}
+.mood-scroll::-webkit-scrollbar{display:none;}
+.mood-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;flex-shrink:0;margin-right:4px;}
+.mood-chip{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:5px 13px;font-size:12px;font-family:'Inter',sans-serif;color:var(--t3);cursor:pointer;white-space:nowrap;transition:border-color 0.2s,color 0.2s,background 0.2s,box-shadow 0.2s;flex-shrink:0;font-weight:500;}
+.mood-chip:hover{border-color:rgba(139,127,245,0.4);color:var(--t);background:rgba(139,127,245,0.08);}
+.mood-chip.on{border-color:var(--p);color:var(--t);background:rgba(139,127,245,0.15);box-shadow:0 0 12px rgba(139,127,245,0.2);}
+.mood-chip:disabled{opacity:0.3;pointer-events:none;}
+
+/* ══ PANELS OVERLAY ══ */
+.panel{position:fixed;inset:0;z-index:50;background:rgba(7,8,13,0.96);backdrop-filter:blur(24px);display:none;flex-direction:column;overflow:hidden;}
+.panel.open{display:flex;animation:slideUp 0.35s cubic-bezier(0.32,0.72,0,1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0;}
+.panel-title{font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:-0.3px;}
+.panel-title span{font-style:italic;background:var(--grad-p);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.panel-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--t2);transition:all 0.2s;}
+.panel-close:hover{background:rgba(255,255,255,0.12);}
+.panel-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;}
+.panel-body::-webkit-scrollbar{width:3px;}
+.panel-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+
+/* Insight cards */
+.ic{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-md);padding:16px;position:relative;overflow:hidden;}
+.ic::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);}
+.ic-label{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;margin-bottom:12px;}
+.ic-big{font-family:'Instrument Serif',serif;font-size:36px;color:var(--g);line-height:1;}
+.ic-sub{font-size:12px;color:var(--t2);margin-top:5px;line-height:1.5;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-box{background:var(--s3);border:1px solid var(--b1);border-radius:var(--r-sm);padding:13px;text-align:center;}
+.stat-val{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;line-height:1;}
+.stat-val.p{color:var(--p2);}
+.stat-val.g{color:var(--g);}
+.stat-val.r{color:var(--r2);}
+.stat-val.y{color:var(--y);}
+.stat-lbl{font-size:9px;color:var(--t3);margin-top:4px;letter-spacing:0.3px;}
+
+/* Trigger bars */
+.trig-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.trig-row:last-child{border-bottom:none;}
+.trig-name{font-size:12px;color:var(--t);width:90px;flex-shrink:0;text-transform:capitalize;}
+.trig-track{flex:1;height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;}
+.trig-fill{height:100%;border-radius:3px;background:var(--grad-p);transition:width 0.8s cubic-bezier(0.34,1.56,0.64,1);}
+.trig-ct{font-size:10px;color:var(--t3);width:20px;text-align:right;flex-shrink:0;}
+
+/* Chart */
+.chart-wrap{height:90px;display:flex;align-items:flex-end;gap:5px;padding-top:8px;}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;background:var(--grad-p);opacity:0.7;min-height:3px;transition:height 0.6s cubic-bezier(0.34,1.56,0.64,1);position:relative;}
+.chart-bar.peak{opacity:1;box-shadow:0 0 12px rgba(139,127,245,0.4);}
+.chart-lbl{font-size:8px;color:var(--t3);}
+
+/* Strategy chips */
+.strat-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.strat-chip{display:flex;align-items:center;gap:6px;background:rgba(139,127,245,0.08);border:1px solid rgba(139,127,245,0.2);border-radius:10px;padding:6px 11px;font-size:11px;color:var(--p2);}
+.strat-chip .ct{background:rgba(139,127,245,0.2);border-radius:20px;padding:1px 6px;font-size:9px;font-weight:600;}
+
+/* Daily check-in card */
+.checkin-card{background:var(--grad-p);border-radius:var(--r-md);padding:18px;position:relative;overflow:hidden;}
+.checkin-card::after{content:'🌅';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:40px;opacity:0.3;}
+.checkin-title{font-family:'Instrument Serif',serif;font-size:18px;color:#fff;margin-bottom:5px;}
+.checkin-sub{font-size:12px;color:rgba(255,255,255,0.75);line-height:1.5;}
+.checkin-btn{margin-top:12px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:7px 16px;font-size:12px;font-family:'Inter',sans-serif;color:#fff;cursor:pointer;font-weight:500;transition:all 0.2s;backdrop-filter:blur(8px);}
+.checkin-btn:hover{background:rgba(255,255,255,0.3);}
+
+/* Mood trend mini chart */
+.mood-dots{display:flex;gap:5px;align-items:flex-end;margin-top:10px;}
+.mood-dot{width:8px;border-radius:4px;transition:all 0.3s;}
+
+
+/* ══ SYNC STATUS ══ */
+.sync-bar{display:flex;align-items:center;gap:6px;padding:5px 18px;background:rgba(7,8,13,0.8);border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px;color:var(--t3);flex-shrink:0;backdrop-filter:blur(8px);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0;}
+.sync-dot.synced{background:var(--g);box-shadow:0 0 6px rgba(78,240,192,0.5);}
+.sync-dot.syncing{background:var(--y);animation:pulse 1s infinite;}
+.sync-dot.error{background:var(--r);}
+.sync-id{margin-left:auto;color:var(--t3);font-size:9px;letter-spacing:0.3px;cursor:pointer;user-select:all;}
+
+/* ══ VOICE CONTROLS ══ */
+.voice-bar{display:flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(139,127,245,0.06);border:1px solid rgba(139,127,245,0.12);border-radius:12px;margin-bottom:7px;transition:all 0.3s;}
+.voice-bar.speaking{background:rgba(78,240,192,0.06);border-color:rgba(78,240,192,0.2);}
+.voice-bar.off{display:none;}
+.voice-wave{display:flex;align-items:center;gap:2px;height:16px;}
+.vw{width:3px;border-radius:2px;background:var(--p);animation:vwave 0.8s ease-in-out infinite;}
+.vw:nth-child(2){animation-delay:0.1s;height:10px;}
+.vw:nth-child(3){animation-delay:0.2s;height:14px;}
+.vw:nth-child(4){animation-delay:0.3s;height:8px;}
+.vw:nth-child(5){animation-delay:0.4s;height:12px;}
+.voice-bar.speaking .vw{background:var(--g);}
+@keyframes vwave{0%,100%{transform:scaleY(0.4);}50%{transform:scaleY(1);}}
+.voice-label{font-size:11px;color:var(--t2);flex:1;}
+.voice-label.speaking{color:var(--g);}
+.voice-stop{background:rgba(242,96,122,0.12);border:1px solid rgba(242,96,122,0.25);border-radius:8px;padding:3px 9px;font-size:10px;font-family:Inter,sans-serif;color:var(--r2);cursor:pointer;}
+.voice-toggle{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px 10px;font-size:10px;font-family:Inter,sans-serif;color:var(--t3);cursor:pointer;transition:all 0.2s;}
+.voice-toggle.on{background:rgba(139,127,245,0.1);border-color:rgba(139,127,245,0.3);color:var(--p2);}
+.voice-toggle svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ══ SYNC PANEL ══ */
+.sync-panel{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-md);padding:16px;}
+.sync-input{width:100%;background:var(--s3);border:1.5px solid var(--b2);border-radius:10px;padding:9px 12px;font-family:Inter,sans-serif;font-size:13px;color:var(--t);outline:none;letter-spacing:1px;text-align:center;text-transform:uppercase;}
+.sync-input:focus{border-color:var(--p);}
+.sync-action-row{display:flex;gap:8px;margin-top:10px;}
+.sync-btn{flex:1;padding:10px;border-radius:10px;font-family:Inter,sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;}
+.sync-btn.primary{background:var(--grad-p);color:#fff;box-shadow:var(--shadow-p);}
+.sync-btn.secondary{background:var(--s3);border:1px solid var(--b2);color:var(--t2);}
+.sync-btn:hover{opacity:0.85;}
+
+/* ══ CHAT ══ */
+.chat-area{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1;overscroll-behavior:contain;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
+.chat-area::-webkit-scrollbar{width:2px;}
+.chat-area::-webkit-scrollbar-thumb{background:var(--b2);border-radius:1px;}
+
+/* Welcome */
+.welcome{text-align:center;padding:28px 16px 8px;animation:fadeUp 0.6s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.welcome h1{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;line-height:1.3;margin-bottom:10px;}
+.welcome h1 em{font-style:italic;background:var(--grad-p);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.welcome p{font-size:13px;color:var(--t2);line-height:1.7;max-width:280px;margin:0 auto;}
+.welcome-dots{display:flex;justify-content:center;gap:6px;margin-top:16px;}
+.wd{width:6px;height:6px;border-radius:50%;background:var(--b2);}
+.wd.on{background:var(--p);box-shadow:0 0 8px rgba(139,127,245,0.5);}
+
+/* Messages */
+.msg-group{display:flex;flex-direction:column;gap:2px;animation:fadeUp 0.25s ease;}
+.msg-row{display:flex;gap:8px;max-width:88%;}
+.msg-row.u{align-self:flex-end;flex-direction:row-reverse;}
+.msg-row.a{align-self:flex-start;}
+.avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:2px;}
+.avatar.ai{background:var(--grad-p);box-shadow:var(--shadow-p);}
+.avatar.usr{background:var(--s3);border:1px solid var(--b2);}
+.bubble{padding:10px 14px;border-radius:18px;font-size:13.5px;line-height:1.65;word-break:break-word;position:relative;}
+.bubble.ai{background:var(--ab);border:1px solid var(--b1);border-top-left-radius:5px;color:var(--t);}
+.bubble.ai::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent);}
+.bubble.usr{background:var(--ub);border:1px solid rgba(139,127,245,0.18);border-top-right-radius:5px;color:var(--t);}
+.bubble b{font-weight:600;color:var(--t);}
+.bubble i{font-style:italic;color:var(--g);}
+.bubble .hl{color:var(--p2);font-weight:500;}
+.msg-time{font-size:9px;color:var(--t3);padding:0 4px;align-self:flex-end;}
+.msg-row.u .msg-time{text-align:right;}
+
+/* Intervention tag */
+.intv-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(139,127,245,0.1);border:1px solid rgba(139,127,245,0.18);border-radius:6px;padding:2px 8px;font-size:9px;color:var(--p2);margin-bottom:4px;letter-spacing:0.3px;font-weight:500;}
+
+/* Typing */
+.typing-row{display:flex;gap:8px;align-items:center;animation:fadeUp 0.2s ease;}
+.typing-bubble{background:var(--ab);border:1px solid var(--b1);border-radius:18px;border-top-left-radius:5px;padding:12px 16px;display:flex;gap:5px;align-items:center;}
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--p);animation:tpulse 1.3s infinite;}
+.tdot:nth-child(2){animation-delay:.2s;}
+.tdot:nth-child(3){animation-delay:.4s;}
+@keyframes tpulse{0%,60%,100%{transform:translateY(0);opacity:0.3;}30%{transform:translateY(-5px);opacity:1;}}
+
+/* Error */
+.err-row{display:flex;align-items:center;gap:8px;background:rgba(242,96,122,0.07);border:1px solid rgba(242,96,122,0.2);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--r2);align-self:flex-start;max-width:88%;animation:fadeUp 0.2s ease;}
+.retry-btn{background:rgba(242,96,122,0.15);border:1px solid rgba(242,96,122,0.3);border-radius:8px;padding:3px 10px;font-size:11px;font-family:'Inter',sans-serif;color:var(--r2);cursor:pointer;white-space:nowrap;}
+
+/* Quick replies */
+.qr-wrap{display:flex;flex-wrap:wrap;gap:6px;padding-left:36px;animation:fadeUp 0.3s ease;}
+.qr{background:transparent;border:1px solid rgba(139,127,245,0.3);border-radius:20px;padding:5px 13px;font-size:11.5px;font-family:'Inter',sans-serif;color:var(--p2);cursor:pointer;transition:all 0.2s;font-weight:500;}
+.qr:hover{background:rgba(139,127,245,0.12);transform:translateY(-1px);box-shadow:0 4px 12px rgba(139,127,245,0.15);}
+
+/* System note */
+.sys-note{text-align:center;font-size:10px;color:var(--t3);padding:3px 0;letter-spacing:0.2px;animation:fadeUp 0.3s ease;}
+
+/* ══ WIDGETS ══ */
+.widget-wrap{padding-left:36px;}
+
+/* Breathe */
+.breathe-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-md);padding:20px;text-align:center;position:relative;overflow:hidden;}
+.breathe-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(78,240,192,0.04),transparent 70%);pointer-events:none;}
+.b-ring-outer{width:96px;height:96px;border-radius:50%;border:1.5px solid rgba(78,240,192,0.15);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;position:relative;}
+.b-ring{width:78px;height:78px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform 0.1s,box-shadow 0.1s;font-size:10px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:0.5px;}
+.b-ring.in  {transform:scale(1.5);box-shadow:0 0 32px rgba(78,240,192,0.35);}
+.b-ring.hold{transform:scale(1.5);box-shadow:0 0 20px rgba(139,127,245,0.3);border-color:var(--p2);color:var(--p2);}
+.b-ring.out {transform:scale(0.78);box-shadow:none;}
+.b-ring.done{transform:scale(1);box-shadow:0 0 20px rgba(78,240,192,0.25);border-color:var(--g);}
+.b-sublabel{font-size:11.5px;color:var(--t2);min-height:18px;}
+.b-reps{font-size:10px;color:var(--t3);margin-top:5px;}
+
+/* Urge timer */
+.urge-card{border-radius:var(--r-md);padding:16px;position:relative;overflow:hidden;}
+.urge-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(242,96,122,0.08),rgba(139,127,245,0.06));pointer-events:none;}
+.urge-card-border{position:absolute;inset:0;border-radius:var(--r-md);border:1px solid rgba(242,96,122,0.25);pointer-events:none;}
+.urge-eyebrow{font-size:10px;font-weight:600;color:var(--r2);letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.urge-digits{font-family:'Instrument Serif',serif;font-size:42px;color:#fff;text-align:center;line-height:1;margin:8px 0;letter-spacing:-2px;will-change:contents;contain:layout style;min-width:120px;display:block;}
+.urge-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin:10px 0;}
+.urge-fill{height:100%;background:var(--grad-p);border-radius:2px;width:0%;transition:width 0.95s linear;}
+.urge-note{font-size:11px;color:var(--t2);text-align:center;line-height:1.6;}
+.urge-done{font-size:14px;color:var(--g);font-weight:600;text-align:center;margin:6px 0;}
+.urge-status{font-size:9.5px;color:var(--g);text-align:center;margin-top:5px;letter-spacing:0.3px;}
+
+/* CBT card */
+.cbt-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-md);padding:16px;}
+.cbt-eyebrow{font-size:9.5px;text-transform:uppercase;letter-spacing:0.8px;color:var(--y);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.cbt-steps{display:flex;flex-direction:column;gap:9px;}
+.cbt-step{display:flex;gap:10px;align-items:flex-start;}
+.cbt-num{width:22px;height:22px;border-radius:50%;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.25);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--y);flex-shrink:0;font-weight:600;}
+.cbt-text{font-size:12px;color:var(--t2);line-height:1.55;padding-top:3px;}
+
+/* ══ INPUT ══ */
+.input-zone{position:relative;z-index:20;padding:10px 14px 16px;background:rgba(7,8,13,0.95);border-top:1px solid rgba(255,255,255,0.04);backdrop-filter:blur(20px);flex-shrink:0;}
+.shortcut-row{display:flex;gap:6px;margin-bottom:9px;overflow-x:auto;scrollbar-width:none;}
+.shortcut-row::-webkit-scrollbar{display:none;}
+.sc{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:5px 11px;font-size:11px;font-family:'Inter',sans-serif;color:var(--t3);cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;font-weight:500;}
+.sc:hover{border-color:rgba(242,96,122,0.4);color:var(--t);background:rgba(242,96,122,0.07);}
+.sc:disabled{opacity:0.3;pointer-events:none;}
+.input-row{display:flex;gap:9px;align-items:flex-end;}
+.input-field-wrap{flex:1;background:var(--s2);border:1.5px solid var(--b1);border-radius:16px;display:flex;align-items:flex-end;gap:0;transition:border-color 0.2s;overflow:hidden;}
+.input-field-wrap:focus-within{border-color:rgba(139,127,245,0.5);box-shadow:0 0 0 3px rgba(139,127,245,0.08);}
+textarea#box{flex:1;background:transparent;border:none;padding:10px 12px;font-family:'Inter',sans-serif;font-size:14px;color:var(--t);resize:none;outline:none;max-height:88px;height:38px;line-height:1.5;overflow-y:auto;}
+textarea#box::placeholder{color:var(--t3);}
+textarea#box:disabled{opacity:0.4;}
+.mic-btn{width:36px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);flex-shrink:0;transition:color 0.2s;border:none;background:transparent;}
+.mic-btn:hover{color:var(--p2);}
+.mic-btn.listening{color:var(--r2);animation:micPulse 1s ease-in-out infinite;}
+.mic-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;}
+@keyframes micPulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.send-btn{width:40px;height:40px;border-radius:13px;background:var(--grad-p);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;box-shadow:var(--shadow-p);}
+.send-btn:hover:not(:disabled){transform:scale(1.08);box-shadow:0 8px 24px rgba(139,127,245,0.4);}
+.send-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.send-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;margin-left:1px;}
+</style>
+</head>
+<body>
+
+<!-- Ambient orbs -->
+<div class="ambient"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+
+<!-- FLOATING TIMER -->
+<div class="float-timer" id="floatTimer" onclick="scrollToTimer()">
+  <div class="ft-eyebrow">⚡ Surf Timer</div>
+  <div class="ft-digits" id="ftDigits">15:00</div>
+  <div class="ft-track"><div class="ft-fill" id="ftFill"></div></div>
+  <div class="ft-hint" id="ftHint">tap to view</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-wrap">
+    <div class="logo-orb">🧠</div>
+    <div>
+      <div class="logo-name">Mind<em>Coach</em> <span style="font-size:9px;background:var(--grad-p);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.5px;">AI</span></div>
+      <div class="logo-tag">Behavioral Intelligence Engine</div>
+    </div>
+  </div>
+  <div class="hdr-actions">
+    <button class="hdr-btn" onclick="openPanel('insights')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Insights
+    </button>
+    <button class="voice-toggle" id="voiceToggle" onclick="toggleVoiceOutput()" title="Toggle AI voice"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg> Voice</button>
+    <div class="streak-pill">🔥 <span id="streakNum">0</span>d</div>
+  </div>
+</header>
+
+<!-- MOOD STRIP -->
+<div class="mood-wrap">
+  <div class="mood-scroll">
+    <span class="mood-lbl">Feeling</span>
+    <button class="mood-chip" data-m="anxious"  onclick="pickMood(this)">😰 Anxious</button>
+    <button class="mood-chip" data-m="stressed"  onclick="pickMood(this)">😤 Stressed</button>
+    <button class="mood-chip" data-m="urge"      onclick="pickMood(this)">⚡ Urge</button>
+    <button class="mood-chip" data-m="bored"     onclick="pickMood(this)">😶 Bored</button>
+    <button class="mood-chip" data-m="sad"       onclick="pickMood(this)">😔 Sad</button>
+    <button class="mood-chip" data-m="angry"     onclick="pickMood(this)">😠 Angry</button>
+    <button class="mood-chip" data-m="good"      onclick="pickMood(this)">😊 Good</button>
+    <button class="mood-chip" data-m="lonely"    onclick="pickMood(this)">🫂 Lonely</button>
+    <button class="mood-chip" data-m="proud"     onclick="pickMood(this)">💪 Proud</button>
+  </div>
+</div>
+
+<!-- INSIGHTS PANEL -->
+<div class="panel" id="insights">
+  <div class="panel-header">
+    <div class="panel-title">Your <span>Behavior</span> Profile</div>
+    <div class="panel-close" onclick="closePanel('insights')">✕</div>
+  </div>
+  <div class="panel-body" id="insightsBody"></div>
+</div>
+
+<!-- DAILY CHECK-IN PANEL -->
+<div class="panel" id="checkinPanel">
+  <div class="panel-header">
+    <div class="panel-title">Daily <span>Check-in</span></div>
+    <div class="panel-close" onclick="closePanel('checkinPanel')">✕</div>
+  </div>
+  <div class="panel-body" id="checkinBody">
+    <p style="font-size:13px;color:var(--t2);line-height:1.7">How are you starting today? Rate your energy and mindset.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;" id="checkinForm">
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Energy Level</div>
+        <div style="display:flex;gap:8px;" id="energyPicker">
+          <button class="ci-opt" data-val="1" onclick="pickCI('energy',this)">😴 Low</button>
+          <button class="ci-opt" data-val="2" onclick="pickCI('energy',this)">😐 Okay</button>
+          <button class="ci-opt" data-val="3" onclick="pickCI('energy',this)">⚡ High</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Mindset</div>
+        <div style="display:flex;gap:8px;" id="mindsetPicker">
+          <button class="ci-opt" data-val="1" onclick="pickCI('mindset',this)">🌧 Weak</button>
+          <button class="ci-opt" data-val="2" onclick="pickCI('mindset',this)">☁ Neutral</button>
+          <button class="ci-opt" data-val="3" onclick="pickCI('mindset',this)">☀ Strong</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">One sentence intention for today</div>
+        <textarea id="intentionBox" placeholder="Today I will…" style="width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:12px;padding:10px 12px;font-family:Inter,sans-serif;font-size:13px;color:var(--t);resize:none;outline:none;height:60px;line-height:1.5;" onfocus="this.style.borderColor='rgba(139,127,245,0.5)'" onblur="this.style.borderColor='var(--b1)'"></textarea>
+      </div>
+      <button onclick="submitCheckin()" style="background:var(--grad-p);border:none;border-radius:14px;padding:13px;font-family:Inter,sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;box-shadow:var(--shadow-p);transition:all 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        Start My Day 🚀
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.ci-opt{flex:1;background:var(--s2);border:1.5px solid var(--b1);border-radius:12px;padding:9px 6px;font-family:Inter,sans-serif;font-size:12px;color:var(--t2);cursor:pointer;transition:all 0.2s;text-align:center;}
+.ci-opt:hover{border-color:var(--p);color:var(--t);}
+.ci-opt.on{background:rgba(139,127,245,0.15);border-color:var(--p);color:var(--t);box-shadow:0 0 12px rgba(139,127,245,0.2);}
+</style>
+
+
+<!-- SYNC STATUS BAR -->
+<div class="sync-bar" id="syncBar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncLabel">Not synced</span>
+  <span class="sync-id" id="syncId" onclick="openPanel('syncPanel')" title="Tap to manage sync">Tap to sync across devices</span>
+</div>
+
+
+<!-- SYNC PANEL -->
+<div class="panel" id="syncPanel">
+  <div class="panel-header">
+    <div class="panel-title">Sync <span>Across Devices</span></div>
+    <div class="panel-close" onclick="closePanel('syncPanel')">✕</div>
+  </div>
+  <div class="panel-body">
+    <div class="sync-panel">
+      <div class="ic-label">Your Sync Code</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6">Share this code on another device to sync your behavioral profile, streak, and history.</div>
+      <input class="sync-input" id="syncCodeDisplay" readonly placeholder="Generate code first">
+      <div class="sync-action-row">
+        <button class="sync-btn primary" onclick="generateSyncCode()">Generate New Code</button>
+        <button class="sync-btn secondary" onclick="copySyncCode()">Copy</button>
+      </div>
+    </div>
+    <div class="sync-panel">
+      <div class="ic-label">Load From Another Device</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6">Enter the sync code from your other device to import your data here.</div>
+      <input class="sync-input" id="syncCodeInput" placeholder="ENTER CODE" maxlength="8" oninput="this.value=this.value.toUpperCase()">
+      <div class="sync-action-row">
+        <button class="sync-btn primary" onclick="loadFromCode()">Load Profile</button>
+      </div>
+    </div>
+    <div id="syncStatus" style="font-size:11px;color:var(--t3);text-align:center;padding:4px 0;"></div>
+  </div>
+</div>
+
+<!-- CHAT AREA -->
+<div class="chat-area" id="chat">
+  <div class="welcome">
+    <h1>Your mind has <em>patterns.</em><br>Let's break them together.</h1>
+    <p>I learn your triggers, adapt to your behavior, and coach you with psychology  -  not guesswork.</p>
+    <div class="welcome-dots">
+      <div class="wd on"></div><div class="wd"></div><div class="wd"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INPUT -->
+<div class="input-zone">
+  <!-- VOICE STATUS BAR -->
+  <div class="voice-bar off" id="voiceBar">
+    <div class="voice-wave"><div class="vw" style="height:8px"></div><div class="vw"></div><div class="vw"></div><div class="vw"></div><div class="vw"></div></div>
+    <span class="voice-label" id="voiceLabel">Coach is speaking…</span>
+    <button class="voice-stop" onclick="stopVoice()">Stop</button>
+  </div>
+  <div class="shortcut-row">
+    <button class="sc" onclick="qs('urge','I have a strong urge right now and need immediate help to resist it')">⚡ Urge hitting</button>
+    <button class="sc" onclick="qs('anxious','I feel very anxious right now, please calm me down with something practical')">💨 Calm me</button>
+    <button class="sc" onclick="qs('relapse','I relapsed and feel like a failure, I need help getting back up')">😞 I slipped</button>
+    <button class="sc" onclick="qs('breathe','Give me a 4-7-8 guided breathing exercise right now')">🌬 Breathe</button>
+    <button class="sc" onclick="qs('motivate','Motivate me to keep going, I am about to give up on myself')">💪 Motivate</button>
+    <button class="sc" onclick="qs('bored','I am bored and vulnerable right now, distract me with something')">🎯 Distract</button>
+    <button class="sc" onclick="qs('cbt','Help me challenge the thought making me want to give in right now')">🔬 CBT</button>
+    <button class="sc" onclick="qs('reflect','Reflect on my progress and help me understand my patterns')">📈 Reflect</button>
+    <button class="sc" onclick="openPanel('checkinPanel')">🌅 Check-in</button>
+  </div>
+  <div class="input-row">
+    <div class="input-field-wrap">
+      <textarea id="box" placeholder="Tell me what's happening…" rows="1"
+        onkeydown="handleKey(event)" oninput="autoH(this)"></textarea>
+      <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="send()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+
+/* Environment detector - runs immediately */
+(function(){
+  var isDownload = (location.protocol==='file:' || location.href.indexOf('content://')===0 || location.href.indexOf('content://downloads')===0);
+  var isIframe   = (window.self !== window.top);
+  var hasSpeech  = (typeof window.speechSynthesis !== 'undefined');
+  window._mcEnv  = {isDownload:isDownload, isIframe:isIframe, hasSpeech:hasSpeech};
+  if(isDownload){
+    window.addEventListener('DOMContentLoaded', function(){
+      setTimeout(function(){
+        var w=document.createElement('div');
+        w.style.cssText='position:fixed;bottom:90px;left:10px;right:10px;z-index:9999;background:rgba(139,127,245,0.97);color:#fff;padding:16px;border-radius:16px;font-size:13px;line-height:1.8;box-shadow:0 8px 32px rgba(0,0,0,0.6);text-align:center;font-family:Inter,sans-serif;';
+        w.innerHTML='<b>Cannot run as downloaded file</b><br>Go back to Claude.ai and use the app inside the chat. Do not download it.';
+        var cl=document.createElement('div');
+        cl.textContent='Tap to close';
+        cl.style.cssText='margin-top:10px;font-size:11px;opacity:0.75;cursor:pointer;';
+        cl.onclick=function(){w.remove();};
+        w.appendChild(cl);
+        document.body.appendChild(w);
+      },800);
+    });
+  }
+})();
+
+/* ══════════════════════════════════════
+   BEHAVIORAL MEMORY
+══════════════════════════════════════ */
+const MK = 'mc_v4';
+function defMem(){return{
+  streak:0,lastDate:'',bestStreak:0,totalDays:0,
+  relapses:0,urgesFaced:0,urgesResisted:0,
+  triggers:{},moodHistory:[],hourlyUrges:new Array(24).fill(0),
+  workingStrategies:{},habits:[],sessions:0,
+  sentimentTrend:[],thoughtRecords:0,userName:'',
+  checkIns:[],dailyEnergy:[],dailyMindset:[],
+  // NEW: deep emotional tracking
+  emotionalRoots:{},
+  rootTriggerChain:[],
+  coreWound:'',
+  productivityWins:[],
+  rewiringProgress:0,
+  conversationPhase:'discover',
+  emotionalAge:null,
+  lastEmotionSpoken:''
+};}
+function loadMem(){try{const r=localStorage.getItem(MK);return r?JSON.parse(r):defMem();}catch{return defMem();}}
+let _saveT=null;function saveMem(){if(_saveT)clearTimeout(_saveT);_saveT=setTimeout(()=>{try{localStorage.setItem(MK,JSON.stringify(mem));}catch{}},400);}
+let mem=loadMem();
+
+/* ══ Behavioral analysis ══ */
+const TRIGGER_MAP={
+  boredom:    ['bored','idle','nothing to do','empty time','no motivation','pointless'],
+  loneliness: ['alone','lonely','nobody','isolated','no one','no friends','nobody cares','miss'],
+  stress:     ['stress','overwhelm','pressure','deadline','too much','cant handle','falling apart'],
+  anxiety:    ['anxious','anxiety','panic','worry','nervous','scared','fear','heart racing'],
+  sadness:    ['sad','depress','low','hopeless','empty','hollow','cry','tears','grief'],
+  anger:      ['angry','furious','frustrated','mad','rage','hate','fed up','unfair'],
+  night:      ['night','midnight','late night','2am','3am','insomnia','cant sleep','dark'],
+  rejection:  ['rejected','rejection','breakup','broke up','she left','he left','no one wants'],
+  fatigue:    ['tired','exhausted','no energy','drained','worn out','burnt out'],
+  shame:      ['ashamed','shame','embarrassed','disgusted with myself','weak','pathetic','loser'],
+  emptiness:  ['empty inside','numb','nothing matters','void','hollow','meaningless','lost'],
+  trauma:     ['childhood','abuse','past','they hurt me','never healed','always been like this'],
+  worthlessness:['worthless','useless','nobody loves me','i am nothing','failure','always fail'],
+  success:    ['beat it','resisted','proud','won','stayed strong','overcame','did it']
+};
+
+// Emotion → likely root cause mapping
+const EMOTION_ROOTS={
+  loneliness:   'disconnection wound  -  the brain learned that being alone = danger',
+  shame:        'worthlessness wound  -  the brain learned "I am the problem"',
+  emptiness:    'identity wound  -  the brain has no clear sense of self or purpose',
+  rejection:    'abandonment wound  -  the brain expects to be left and prepares for it',
+  anger:        'powerlessness wound  -  the brain learned that control = safety',
+  anxiety:      'safety wound  -  the brain is stuck in threat-detection mode',
+  worthlessness:'core inadequacy wound  -  the brain learned "I am not enough"',
+  trauma:       'unprocessed pain wound  -  old experiences still running the brain',
+  boredom:      'stimulation void  -  the brain chases dopamine because nothing feels meaningful',
+  sadness:      'loss wound  -  something important is missing or grieved',
+};
+// Detect the emotional ROOT beneath the surface complaint
+function detectEmotionalRoot(text){
+  const tl = text.toLowerCase();
+  // Loneliness patterns
+  if(/nobody|alone|no one|isolated|they don.t care|invisible/.test(tl)) return 'loneliness';
+  if(/worthless|useless|i.m nothing|failure|always fail|never good/.test(tl)) return 'worthlessness';
+  if(/ashamed|disgusting|weak|pathetic|hate myself/.test(tl)) return 'shame';
+  if(/empty|numb|nothing matters|hollow|lost|no purpose/.test(tl)) return 'emptiness';
+  if(/rejected|she left|he left|abandoned|no one wants/.test(tl)) return 'rejection';
+  if(/angry|rage|unfair|powerless|can.t control/.test(tl)) return 'anger';
+  if(/scared|panic|threat|not safe|what if/.test(tl)) return 'anxiety';
+  if(/bored|meaningless|nothing to do|pointless/.test(tl)) return 'boredom';
+  if(/childhood|past|they hurt|always been/.test(tl)) return 'trauma';
+  return null;
+}
+
+// Detect conversation phase based on history depth
+function detectPhase(){
+  const s = mem.sessions;
+  const r = mem.relapses;
+  const rr = mem.urgesFaced > 0 ? mem.urgesResisted/mem.urgesFaced : 0;
+  if(s <= 2) return 'discover';
+  if(s <= 5 || !mem.coreWound) return 'understand';
+  if(rr < 0.5) return 'rewire';
+  return 'strengthen';
+}
+
+// Build rewiring score 0-100
+function calcRewiringScore(){
+  const rr = mem.urgesFaced > 0 ? (mem.urgesResisted/mem.urgesFaced)*40 : 0;
+  const str = Math.min(mem.streak * 2, 20);
+  const cbt = Math.min(mem.thoughtRecords * 5, 20);
+  const wins = Math.min((mem.productivityWins||[]).length * 4, 20);
+  return Math.round(rr + str + cbt + wins);
+}
+
+function extractTriggers(t){const tl=t.toLowerCase();const r=[];for(const[k,v]of Object.entries(TRIGGER_MAP))if(v.some(w=>tl.includes(w)))r.push(k);return r;}
+function isRelapse(t){const tl=t.toLowerCase();return['relapsed','gave in','did it again','slipped','couldn\'t stop','failed again','fapped','smoked again'].some(w=>tl.includes(w));}
+function isResist(t){const tl=t.toLowerCase();return['beat it','resisted','didn\'t give in','stayed strong','i won','held out','overcame','i did it'].some(w=>tl.includes(w));}
+function sentiment(t){const tl=t.toLowerCase();let s=0;['terrible','awful','can\'t','hopeless','worthless','hate myself','never','useless','pathetic','broken'].forEach(w=>{if(tl.includes(w))s-=0.2;});['better','good','okay','proud','strong','did it','helped','thanks','winning','improving','happy'].forEach(w=>{if(tl.includes(w))s+=0.2;});return Math.max(-1,Math.min(1,s));}
+
+function recordEvt(type,data={}){
+  const hr=new Date().getHours();
+  if(type==='mood'){mem.moodHistory.push({mood:data.mood,hr,ts:Date.now()});if(mem.moodHistory.length>60)mem.moodHistory=mem.moodHistory.slice(-60);if(data.mood==='urge'){mem.urgesFaced++;mem.hourlyUrges[hr]++;}}
+  if(type==='trigger'){
+    (data.triggers||[]).forEach(t=>{mem.triggers[t]=(mem.triggers[t]||0)+1;});
+    if(data.emotion){
+      mem.emotionalRoots[data.emotion]=(mem.emotionalRoots[data.emotion]||0)+1;
+      
+      const top=Object.entries(mem.emotionalRoots).sort((a,b)=>b[1]-a[1])[0];
+      if(top && top[1]>=2) mem.coreWound=top[0];
+      mem.rootTriggerChain.push({trigger:data.triggers[0]||'unknown',emotion:data.emotion,time:Date.now(),resolved:false});
+      if(mem.rootTriggerChain.length>20) mem.rootTriggerChain=mem.rootTriggerChain.slice(-20);
+    }
+  }
+  if(type==='relapse'){mem.relapses++;mem.streak=0;}
+  if(type==='resist')mem.urgesResisted++;
+  if(type==='strategy')mem.workingStrategies[data.s]=(mem.workingStrategies[data.s]||0)+1;
+  if(type==='sentiment'){mem.sentimentTrend.push(data.v);if(mem.sentimentTrend.length>12)mem.sentimentTrend=mem.sentimentTrend.slice(-12);}
+  if(type==='cbt')mem.thoughtRecords++;
+  if(type==='checkin'){mem.checkIns.push({ts:Date.now(),energy:data.energy,mindset:data.mindset,intention:data.intention});if(mem.checkIns.length>30)mem.checkIns=mem.checkIns.slice(-30);}
+  saveMem();
+}
+
+function bumpStreak(){
+  const today=new Date().toDateString();
+  if(today===mem.lastDate)return false;
+  mem.streak++;mem.lastDate=today;mem.totalDays++;
+  if(mem.streak>mem.bestStreak)mem.bestStreak=mem.streak;
+  saveMem();document.getElementById('streakNum').textContent=mem.streak;return true;
+}
+
+/* ══ Build behavioral context for AI ══ */
+function behavCtx(){
+  const topT=Object.entries(mem.triggers).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([t,c])=>`${t}(×${c})`).join(', ')||'none yet';
+  const rr=mem.urgesFaced>0?Math.round((mem.urgesResisted/mem.urgesFaced)*100):null;
+  const topS=Object.entries(mem.workingStrategies).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([s])=>s).join(', ')||'none yet';
+  const avgS=mem.sentimentTrend.length>0?(mem.sentimentTrend.reduce((a,b)=>a+b,0)/mem.sentimentTrend.length).toFixed(2):null;
+  const recentM=mem.moodHistory.slice(-5).map(m=>m.mood).join(', ')||'none';
+  const peakH=mem.hourlyUrges.indexOf(Math.max(...mem.hourlyUrges));
+  const lastCI=mem.checkIns.length>0?mem.checkIns[mem.checkIns.length-1]:null;
+  return `BEHAVIORAL PROFILE:
+- Streak: ${mem.streak}d (best: ${mem.bestStreak}d) | Relapses: ${mem.relapses}
+- Urges: ${mem.urgesFaced} faced, ${mem.urgesResisted} resisted${rr!==null?` (${rr}% resistance rate)`:''} 
+- Top triggers: ${topT} | Peak urge hour: ${peakH}:00
+- Recent moods: ${recentM} | Avg sentiment: ${avgS||'unknown'}
+- What works: ${topS} | CBT sessions: ${mem.thoughtRecords}
+- Sessions total: ${mem.sessions}${mem.userName?`\n- Name: ${mem.userName}`:''}${lastCI?`\n- Last check-in: energy=${lastCI.energy}/3, mindset=${lastCI.mindset}/3, intention="${lastCI.intention}"`:''}`;}
+
+function sysPrompt(){return `You are MindCoach AI  -  an elite behavioral psychology coach. You have persistent memory of this user's patterns and adapt every response based on what you know about them.
+
+${behavCtx()}
+
+PSYCHOLOGICAL TOOLKIT (use adaptively based on profile):
+• CBT  -  challenge cognitive distortions; especially after relapses
+• Motivational Interviewing  -  explore ambivalence, strengthen intrinsic motivation, avoid arguments
+• ACT Urge Surfing  -  observe cravings without acting; urges peak in 10-15 min then pass
+• Behavioral Activation  -  replace trigger situations with planned alternatives
+• HALT  -  check Hungry/Angry/Lonely/Tired as root causes
+• Implementation Intentions  -  specific if-then action plans
+• Identity Reinforcement  -  "you ARE someone who does X" when resistance rate > 60%
+• Self-Compassion  -  relapses = data, not character flaws; never shame
+
+ADAPTIVE RULES:
+• Resistance rate < 40% → focus on environment design, trigger avoidance, situational control
+• Resistance rate > 65% → use identity language, celebrate growth, raise the bar
+• Repeated relapse same trigger → explicitly name the pattern: "I notice every time [X] happens, you [Y]"
+• Sentiment trending negative → lead with compassion; postpone advice
+• Multiple sessions → reference their history concretely ("Last time you beat this with a cold shower")
+• Check-in data available → reference their energy/mindset/intention naturally
+
+RESPONSE RULES:
+• Validate first (1-2 sentences)  -  always
+• Keep responses PUNCHY: 3-5 sentences unless doing CBT/analysis
+• Voice: warm brilliant coach  -  direct, caring, zero fluff. NOT clinical.
+• Use **bold** for key insight phrases, *italics* for empathetic asides
+• ONE question max per response
+• Be specific  -  use their data when relevant
+• After urge: SURF technique + ONE physical action + remind it passes in ~15 min
+• After relapse: compassion → trigger ID → micro-plan for next 2 hours ONLY
+• After good news: celebrate genuinely, then raise the challenge slightly
+• Suggest real immediate actions: cold shower, 20 pushups, walk around block, call someone, drink cold water, 3 deep breaths, journal 3 sentences, clean one room
+• Never repeat same advice twice in a row. Never be preachy.`;}
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let history=[];
+let busy=false;
+let lastMsg='';
+let lastType='';
+let timerCardRef=null;
+let recognition=null;
+let listening=false;
+let ciEnergy=0,ciMindset=0;
+
+document.getElementById('streakNum').textContent=mem.streak;
+mem.sessions++;saveMem();
+
+/* ══════════════════════════════════════
+   PANEL SYSTEM
+══════════════════════════════════════ */
+function openPanel(id){document.getElementById(id).classList.add('open');if(id==='insights')renderInsights();if(id==='checkinPanel'){ciEnergy=0;ciMindset=0;document.querySelectorAll('.ci-opt').forEach(b=>b.classList.remove('on'));const ib=document.getElementById('intentionBox');if(ib)ib.value='';}}
+function closePanel(id){document.getElementById(id).classList.remove('open');}
+
+/* ══════════════════════════════════════
+   LOCK
+══════════════════════════════════════ */
+function setLock(v){
+  busy=v;
+  document.getElementById('sendBtn').disabled=v;
+  document.getElementById('box').disabled=v;
+  document.querySelectorAll('.mood-chip,.sc').forEach(b=>b.disabled=v);
+}
+
+/* ══════════════════════════════════════
+   MOOD
+══════════════════════════════════════ */
+const MOOD_MSG={anxious:"I'm feeling really anxious right now and my mind won't stop racing.",stressed:"I'm completely stressed out and everything feels overwhelming.",urge:"I have a strong urge hitting me right now and I need immediate help.",bored:"I'm bored and I know this is when I'm most vulnerable to giving in.",sad:"I feel really sad and heavy right now. Everything feels pointless.",angry:"I'm feeling angry and I don't know what to do with this energy.",good:"I'm actually feeling good today and wanted to check in with you.",lonely:"I'm feeling lonely and it's making everything so much harder.",proud:"I resisted an urge just now and I'm feeling proud of myself!"};
+function pickMood(btn){if(busy)return;document.querySelectorAll('.mood-chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const m=btn.dataset.m;recordEvt('mood',{mood:m});qs(m,MOOD_MSG[m]);}
+
+/* ══════════════════════════════════════
+   TEXTAREA
+══════════════════════════════════════ */
+function autoH(el){el.style.height='38px';el.style.height=Math.min(el.scrollHeight,88)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function qs(type,text){if(busy)return;lastType=type;const b=document.getElementById('box');if(b.value===text&&Date.now()-_lastSendTs<400)return;b.value=text;autoH(b);send();}
+
+/* ══════════════════════════════════════
+   VOICE INPUT
+══════════════════════════════════════ */
+function toggleVoice(){
+  const btn=document.getElementById('micBtn');
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    addSysNote('Mic needs full browser. Tap the arrow/open icon on the artifact to open in new tab.');return;
+  }
+  if(listening){if(recognition)recognition.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  recognition.lang='en-US';recognition.continuous=false;recognition.interimResults=true;
+  recognition.onstart=()=>{listening=true;btn.classList.add('listening');};
+  recognition.onend=()=>{listening=false;btn.classList.remove('listening');};
+  var errFired=false;
+  recognition.onerror=function(e){
+    if(errFired)return; errFired=true;
+    listening=false;btn.classList.remove('listening');
+    if(e.error==='not-allowed'||e.error==='permission-denied')
+      addSysNote('Mic blocked. In Android Chrome: tap the lock icon in address bar, allow Microphone, then reload.');
+    else if(e.error==='network') addSysNote('Mic needs internet. Try again.');
+    else if(e.error==='aborted') return;
+    else addSysNote('Mic error: '+e.error+'. Try tapping the mic again.');
+  };
+  recognition.onresult=(e)=>{
+    const box=document.getElementById('box');
+    const transcript=Array.from(e.results).map(r=>r[0].transcript).join('');
+    box.value=transcript;autoH(box);
+    if(e.results[e.results.length-1].isFinal){setTimeout(()=>send(),300);}
+  };
+  recognition.start();
+}
+
+/* ══════════════════════════════════════
+   DOM HELPERS
+══════════════════════════════════════ */
+let _scrollT=0;function scrollBot(){if(_scrollT)return;_scrollT=requestAnimationFrame(()=>{const c=document.getElementById('chat');c.scrollTop=c.scrollHeight;_scrollT=0;});}
+function scrollToTimer(){if(timerCardRef)timerCardRef.scrollIntoView({behavior:'smooth',block:'center'});}
+function fmt(t){return t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<i>$1</i>').replace(/`(.+?)`/g,'<span class="hl">$1</span>').replace(/\n/g,'<br>');}
+function nowTime(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+
+function sanitize(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function addMsg(role,text,widget=null,intv=null){
+  const chat=document.getElementById('chat');
+  const grp=document.createElement('div');grp.className='msg-group';
+  grp.style.alignSelf=role==='u'?'flex-end':'flex-start';
+  grp.style.maxWidth='88%';
+
+  if(role==='a'&&intv){
+    const tag=document.createElement('div');tag.className='intv-tag';
+    tag.innerHTML=`🔬 ${intv}`;grp.appendChild(tag);
+  }
+
+  const row=document.createElement('div');row.className=`msg-row ${role}`;
+  const av=document.createElement('div');av.className=`avatar ${role==='u'?'usr':'ai'}`;
+  av.textContent=role==='u'?'👤':'🧠';
+  const bub=document.createElement('div');bub.className=`bubble ${role==='u'?'usr':'ai'}`;
+  bub.innerHTML=role==='u'?fmt(sanitize(text)):fmt(text);
+  row.appendChild(av);row.appendChild(bub);
+  grp.appendChild(row);
+
+  const mt=document.createElement('div');mt.className='msg-time';mt.textContent=nowTime();
+  grp.appendChild(mt);
+  chat.appendChild(grp);
+
+  if(widget){const ww=document.createElement('div');ww.className='widget-wrap';ww.appendChild(widget);chat.appendChild(ww);}
+  scrollBot();
+}
+
+function addTyping(){
+  const chat=document.getElementById('chat');
+  const row=document.createElement('div');row.className='typing-row';row.id='typing';
+  const av=document.createElement('div');av.className='avatar ai';av.textContent='🧠';
+  const bub=document.createElement('div');bub.className='typing-bubble';
+  bub.innerHTML='<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>';
+  row.appendChild(av);row.appendChild(bub);
+  chat.appendChild(row);requestAnimationFrame(()=>requestAnimationFrame(()=>scrollBot()));
+}
+function rmTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+
+function addErr(msg){
+  const chat=document.getElementById('chat');
+  const d=document.createElement('div');d.className='err-row';
+  d.innerHTML=`<span>⚠ ${msg||'Connection issue.'}</span><button class="retry-btn" onclick="retry(this)">Retry</button>`;
+  chat.appendChild(d);scrollBot();
+}
+
+function addQR(pairs){
+  const chat=document.getElementById('chat');
+  const wrap=document.createElement('div');wrap.className='qr-wrap';
+  pairs.forEach(([lbl,type,text])=>{
+    const btn=document.createElement('button');btn.className='qr';btn.textContent=lbl;
+    btn.onclick=()=>{wrap.remove();qs(type,text);};
+    wrap.appendChild(btn);
+  });
+  chat.appendChild(wrap);scrollBot();
+}
+
+function addSysNote(t){
+  const chat=document.getElementById('chat');
+  const d=document.createElement('div');d.className='sys-note';d.textContent=t;
+  chat.appendChild(d);scrollBot();
+}
+
+/* ══════════════════════════════════════
+   WIDGET DETECTION
+══════════════════════════════════════ */
+function detectWidget(type,u,a){
+  const ul=u.toLowerCase(),al=a.toLowerCase();
+  const bWords=['4-7-8','box breath','breathing exercise','inhale','exhale'];
+  const uWords=['urge surf','surf the urge','15 min','ride it out','urge will pass'];
+  if(type==='breathe'||bWords.some(k=>ul.includes(k)||al.includes(k)))return mkBreathe();
+  if(type==='urge'||uWords.some(k=>al.includes(k)))return mkUrge();
+  if(type==='cbt'||(ul.includes('thought')&&(al.includes('challenge')||al.includes('cbt'))))return mkCBT();
+  return null;
+}
+
+function detectIntv(type,reply){
+  if(type==='urge')return'Urge Surfing • ACT';
+  if(type==='breathe')return'4-7-8 Breathing • Parasympathetic Reset';
+  if(type==='cbt')return'CBT Thought Challenge';
+  if(type==='relapse')return'Compassion-First • Trigger Analysis';
+  if(type==='anxious')return'Grounding Technique';
+  const r=reply.toLowerCase();
+  if(r.includes('if')&&r.includes('then'))return'Implementation Intention';
+  if(r.includes('halt'))return'HALT Root Cause Check';
+  if(r.includes('identity')||r.includes('you are someone'))return'Identity Reinforcement';
+  return null;
+}
+
+/* ══════════════════════════════════════
+   BREATHE WIDGET
+══════════════════════════════════════ */
+function mkBreathe(){
+  const card=document.createElement('div');card.className='breathe-card';
+  const outer=document.createElement('div');outer.className='b-ring-outer';
+  const ring=document.createElement('div');ring.className='b-ring';ring.textContent='Start';
+  const sub=document.createElement('div');sub.className='b-sublabel';sub.textContent='Tap circle to begin';
+  const reps=document.createElement('div');reps.className='b-reps';
+  outer.appendChild(ring);card.appendChild(outer);card.appendChild(sub);card.appendChild(reps);
+
+  const STEPS=[{l:'Inhale',c:'in',d:4000},{l:'Hold',c:'hold',d:7000},{l:'Exhale',c:'out',d:8000}];
+  let running=false;
+  ring.addEventListener('click',()=>{
+    if(running)return;running=true;ring.textContent='';
+    let si=0,round=0;
+    const tick=()=>{
+      if(round>=4){ring.className='b-ring done';ring.textContent='✓';sub.textContent='Feel the calm settle in.';reps.textContent='';recordEvt('strategy',{s:'4-7-8 breathing'});return;}
+      const s=STEPS[si];ring.className=`b-ring ${s.c}`;ring.textContent=s.l;
+      reps.textContent=`Round ${round+1} of 4`;
+      let rem=s.d/1000;sub.textContent=`${s.l}… ${rem}s`;
+      const iv=setInterval(()=>{rem--;if(rem>0)sub.textContent=`${s.l}… ${rem}s`;else clearInterval(iv);},1000);
+      setTimeout(()=>{si++;if(si>=STEPS.length){si=0;round++;}tick();},s.d);
+    };tick();
+  });
+  return card;
+}
+
+/* ══════════════════════════════════════
+   URGE TIMER WIDGET
+══════════════════════════════════════ */
+function mkUrge(){
+  const TOTAL=900;
+  const card=document.createElement('div');card.className='urge-card';
+  const border=document.createElement('div');border.className='urge-card-border';
+  const eye=document.createElement('div');eye.className='urge-eyebrow';eye.innerHTML='⚡ Urge Surf Timer';
+  const digs=document.createElement('div');digs.className='urge-digits';digs.textContent='15:00';
+  const track=document.createElement('div');track.className='urge-track';
+  const fill=document.createElement('div');fill.className='urge-fill';
+  track.appendChild(fill);
+  const note=document.createElement('div');note.className='urge-note';note.textContent='Urges peak and pass. Watch it like a wave  -  you are bigger than this craving.';
+  const status=document.createElement('div');status.className='urge-status';status.textContent='⏱ Running  -  stay present';
+  card.appendChild(border);card.appendChild(eye);card.appendChild(digs);card.appendChild(track);card.appendChild(note);card.appendChild(status);
+
+  timerCardRef=card;
+
+  /* Floating timer refs */
+  const ft=document.getElementById('floatTimer');
+  const ftD=document.getElementById('ftDigits');
+  const ftF=document.getElementById('ftFill');
+  const ftH=document.getElementById('ftHint');
+  ft.className='float-timer on';ft._ref=card;
+
+  const t0=Date.now();
+  const iv=setInterval(()=>{
+    const el=Math.floor((Date.now()-t0)/1000);
+    const rem=TOTAL-el;
+    const pct=Math.min((el/TOTAL)*100,100);
+    if(rem<=0){
+      clearInterval(iv);
+      const done=document.createElement('div');done.className='urge-done';done.textContent='✓ You rode it out. That took real strength.';
+      card.insertBefore(done,digs);digs.remove();
+      fill.style.width='100%';ftF.style.width='100%';
+      note.textContent='The urge passed  -  because urges always do. Remember this.';
+      status.textContent='';
+      ft.className='float-timer on done-state';
+      ftD.textContent='✓ Done!';ftH.textContent='you held on 💪';
+      setTimeout(()=>{ft.className='float-timer';},5000);
+      recordEvt('resist');recordEvt('strategy',{s:'urge surfing'});
+      return;
+    }
+    const m=Math.floor(rem/60).toString().padStart(2,'0');
+    const s=(rem%60).toString().padStart(2,'0');
+    var timeStr=m+':'+s;
+    var pctStr=pct.toFixed(1)+'%';
+    requestAnimationFrame(function(){
+      digs.textContent=timeStr;
+      ftD.textContent=timeStr;
+      fill.style.width=pctStr;
+      ftF.style.width=pctStr;
+    });
+    ftH.textContent=rem<180?'almost there…':rem<480?'stay strong':'tap to view';
+  },1000);
+
+  return card;
+}
+
+/* ══════════════════════════════════════
+   CBT WIDGET
+══════════════════════════════════════ */
+function mkCBT(){
+  const card=document.createElement('div');card.className='cbt-card';
+  const eye=document.createElement('div');eye.className='cbt-eyebrow';eye.innerHTML='🔬 CBT Thought Challenge';
+  const steps=document.createElement('div');steps.className='cbt-steps';
+  [
+    'What automatic thought are you having right now?',
+    'What evidence supports it? What directly contradicts it?',
+    'What would you tell a close friend who had this exact thought?',
+    'What is a more balanced, realistic thought you can replace it with?'
+  ].forEach((t,i)=>{
+    const row=document.createElement('div');row.className='cbt-step';
+    const num=document.createElement('div');num.className='cbt-num';num.textContent=i+1;
+    const txt=document.createElement('div');txt.className='cbt-text';txt.textContent=t;
+    row.appendChild(num);row.appendChild(txt);steps.appendChild(row);
+  });
+  card.appendChild(eye);card.appendChild(steps);
+  recordEvt('cbt');
+  return card;
+}
+
+/* ══════════════════════════════════════
+   SMART QUICK REPLIES
+══════════════════════════════════════ */
+function getQR(type,u,a){
+  const combo=(u+' '+a).toLowerCase();
+  if(type==='urge'||combo.includes('urge')||combo.includes('craving'))
+    return[['I beat it! 💪','proud','I resisted the urge, I am feeling proud of myself'],['Still struggling…','urge','I am still struggling with this urge, it is not passing'],['Distract me now','bored','Give me something physical to do right now to break the urge']];
+  if(type==='relapse'||combo.includes('relap')||combo.includes('slipped'))
+    return[['Find my trigger','reflect','Help me identify exactly what triggered this relapse'],['Make a 2-hour plan','motivate','Help me plan the next 2 hours to stay clean'],['I need compassion','sad','I am being too hard on myself right now, just be kind to me']];
+  if(type==='anxious'||combo.includes('anxi')||combo.includes('stress'))
+    return[['Breathing exercise','breathe','Walk me through 4-7-8 breathing right now'],['5-4-3-2-1 grounding','anxious','Take me through the 5 senses grounding technique now'],['I feel a bit better','good','I am starting to feel a little better, thank you']];
+  if(type==='reflect'||combo.includes('pattern')||combo.includes('progress'))
+    return[['My top triggers?','reflect','What are my most common urge triggers based on our history?'],['What works for me?','reflect','Which coping strategies have worked best for me so far?'],['Build my plan','motivate','Help me design a relapse prevention plan for this week']];
+  return[['More support','motivate','I need more encouragement and support right now'],['CBT exercise','cbt','Help me challenge the negative thought I am stuck on'],['I am okay now ✓','good','I am feeling better now, thank you for the help']];
+}
+
+/* ══════════════════════════════════════
+   API
+══════════════════════════════════════ */
+// ── API ENDPOINT CONFIG ──
+// When running on Claude.ai: uses Anthropic API directly (works)
+// When hosted externally: set your Cloudflare Worker URL below
+var PROXY_URL = 'https://mindcoach-proxy.opsonu359.workers.dev';  // e.g. 'https://mindcoach.YOUR-NAME.workers.dev'
+var API_URL   = (PROXY_URL && PROXY_URL.length > 5)
+              ? PROXY_URL
+              : 'https://api.anthropic.com/v1/messages';
+
+async function callAPI(msgs){
+  var body = JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt(),messages:msgs});
+  var headers = {'Content-Type':'application/json'};
+  var res = await fetch(API_URL, {method:'POST', headers:headers, body:body});
+  if(!res.ok){
+    var e = await res.json().catch(function(){return {};});
+    var msg = (e&&e.error&&e.error.message)||('HTTP '+res.status);
+    if(res.status===0||msg.toLowerCase().indexOf('fetch')>-1)
+      throw new Error('CORS_BLOCKED');
+    throw new Error(msg);
+  }
+  var d = await res.json();
+  var t = d.content&&d.content.find(function(b){return b.type==='text';})?d.content.find(function(b){return b.type==='text';}).text:null;
+  if(!t) throw new Error('Empty AI response.');
+  return t;
+}
+
+/* ══════════════════════════════════════
+   SEND
+══════════════════════════════════════ */
+let _lastSendTs=0;
+async function send(){
+  const now=Date.now();
+  if(busy||now-_lastSendTs<800)return;
+  _lastSendTs=now;
+  const box=document.getElementById('box');
+  const text=box.value.trim();if(!text)return;
+  lastMsg=text;
+  const type=lastType||'general';lastType='';
+  box.value='';box.style.height='38px';
+  setLock(true);
+
+  // Behavior tracking
+  const trigs=extractTriggers(text);
+  const emotRoot=detectEmotionalRoot(text);
+  if(trigs.length||emotRoot) recordEvt('trigger',{triggers:trigs,emotion:emotRoot});
+  if(emotRoot) mem.lastEmotionSpoken=emotRoot;
+  if(isRelapse(text))recordEvt('relapse');
+  if(isResist(text)){
+    recordEvt('resist');recordEvt('strategy',{s:'willpower'});
+    if(!mem.productivityWins) mem.productivityWins=[];
+    mem.productivityWins.push({text:text.slice(0,60),ts:Date.now()});
+    mem.rewiringProgress=calcRewiringScore();
+    saveMem();
+  }
+  recordEvt('sentiment',{v:sentiment(text)});
+  const nm=text.match(/(?:my name is|i'm|i am|call me)\s+([A-Z][a-z]+)/);
+  if(nm&&!mem.userName){mem.userName=nm[1];saveMem();}
+
+  addMsg('u',text);
+  history.push({role:'user',content:text});
+  addTyping();
+
+  try{
+    const reply=await callAPI(history.slice(-14));
+    rmTyping();
+    const intv=detectIntv(type,reply);
+    const widget=detectWidget(type,text,reply);
+    addMsg('a',reply,widget,intv);
+    history.push({role:'assistant',content:reply});
+    // Android: resume synthesis context before speaking (may have been suspended)
+    if(window.speechSynthesis) window.speechSynthesis.resume();
+    setTimeout(function(){ speak(reply); }, 50);
+    autoSync();
+    const qrs=getQR(type,text,reply);
+    if(qrs)addQR(qrs);
+    bumpStreak();
+    if(mem.streak>0&&mem.streak%7===0)setTimeout(()=>addSysNote(`🎉 ${mem.streak} day streak. You are building something real.`),700);
+    if(mem.urgesResisted>0&&mem.urgesResisted%5===0)setTimeout(()=>addSysNote(`⚡ ${mem.urgesResisted} urges resisted. You are getting measurably stronger.`),900);
+  }catch(err){
+    rmTyping();
+    let em=err.message||'Error';
+    if(em==='CORS_BLOCKED'||/fetch|network|failed/i.test(em)){
+      em='API blocked on this domain. Set your Cloudflare Worker proxy URL in the PROXY_URL variable at the top of the script. See instructions below.';
+      addSysNote('📋 Setup needed: tap the ⚙ button or see instructions to configure your proxy URL.');
+    }
+    addErr(em);history.pop();
+  }
+  setLock(false);box.focus();
+}
+
+async function retry(btn){
+  if(busy||!lastMsg)return;
+  var _er=btn.closest('.err-row');if(_er)_er.remove();
+  lastType='general';
+  const box=document.getElementById('box');box.value=lastMsg;send();
+}
+
+/* ══════════════════════════════════════
+   DAILY CHECK-IN
+══════════════════════════════════════ */
+function pickCI(field,btn){
+  const group=document.getElementById(field==='energy'?'energyPicker':'mindsetPicker');
+  group.querySelectorAll('.ci-opt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(field==='energy')ciEnergy=parseInt(btn.dataset.val);
+  else ciMindset=parseInt(btn.dataset.val);
+}
+
+function submitCheckin(){
+  const intention=document.getElementById('intentionBox').value.trim();
+  if(!ciEnergy||!ciMindset){addSysNote('Please pick both energy and mindset levels.');return;}
+  recordEvt('checkin',{energy:ciEnergy,mindset:ciMindset,intention:intention||'No intention set'});
+  closePanel('checkinPanel');
+  const energyLabel=['','Low 😴','Okay 😐','High ⚡'][ciEnergy];
+  const mindsetLabel=['','Weak 🌧','Neutral ☁','Strong ☀'][ciMindset];
+  qs('reflect',`Daily check-in: my energy is ${energyLabel}, mindset is ${mindsetLabel}${intention?`, and my intention is: "${intention}"`:'. No intention set.'}. Coach me based on this.`);
+}
+
+/* ══════════════════════════════════════
+   INSIGHTS PANEL
+══════════════════════════════════════ */
+function renderInsights(){
+  const el=document.getElementById('insightsBody');
+  el.innerHTML='';
+  const rr=mem.urgesFaced>0?Math.round((mem.urgesResisted/mem.urgesFaced)*100):0;
+  const topT=Object.entries(mem.triggers).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topS=Object.entries(mem.workingStrategies).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const peakH=mem.hourlyUrges.indexOf(Math.max(...mem.hourlyUrges));
+  const avgS=mem.sentimentTrend.length>0?(mem.sentimentTrend.reduce((a,b)=>a+b,0)/mem.sentimentTrend.length):0;
+  const sentLbl=avgS>0.1?'📈 Improving':avgS<-0.1?'📉 Struggling':'➡ Stable';
+
+  if(mem.sessions<=1&&mem.urgesFaced===0){
+    el.innerHTML=`<div style="text-align:center;padding:50px 20px;"><div style="font-size:40px;margin-bottom:14px">🌱</div><div style="font-size:15px;color:var(--t);margin-bottom:8px;font-family:Instrument Serif,serif;">Your profile is building.</div><div style="font-size:12px;color:var(--t2);line-height:1.7">The more you chat, the smarter I get about your patterns. Insights will appear here.</div></div>`;
+    return;
+  }
+
+  // Stats grid
+  const sg=document.createElement('div');sg.className='ic';
+  sg.innerHTML=`<div class="ic-label">📊 Your Numbers</div><div class="stat-grid">
+    <div class="stat-box"><div class="stat-val g">${mem.streak}</div><div class="stat-lbl">Current Streak</div></div>
+    <div class="stat-box"><div class="stat-val p">${mem.bestStreak}</div><div class="stat-lbl">Best Streak</div></div>
+    <div class="stat-box"><div class="stat-val y">${rr}%</div><div class="stat-lbl">Resistance Rate</div></div>
+    <div class="stat-box"><div class="stat-val r">${mem.relapses}</div><div class="stat-lbl">Relapses Logged</div></div>
+  </div><div class="ic-sub" style="margin-top:10px">${sentLbl} · ${mem.urgesResisted} urges beaten · ${mem.thoughtRecords} CBT session${mem.thoughtRecords!==1?'s':''}</div>`;
+  el.appendChild(sg);
+
+  // Hourly urge chart
+  if(mem.urgesFaced>0){
+    const cc=document.createElement('div');cc.className='ic';
+    const maxH=Math.max(...mem.hourlyUrges,1);
+    const chartHTML=mem.hourlyUrges.map((v,h)=>{
+      const pct=Math.round((v/maxH)*80)+4;
+      const isPeak=h===peakH&&v>0;
+      const lbl=h===0?'12a':h===6?'6a':h===12?'12p':h===18?'6p':h===peakH?`${h>12?h-12:h}${h>=12?'p':'a'}`:'';
+      return `<div class="chart-bar-wrap"><div class="chart-bar${isPeak?' peak':''}" style="height:${pct}px" title="${h}:00  -  ${v} urge${v!==1?'s':''}"></div><div class="chart-lbl">${lbl}</div></div>`;
+    }).join('');
+    cc.innerHTML=`<div class="ic-label">🕐 Urge Pattern by Hour</div><div class="chart-wrap">${chartHTML}</div><div class="ic-sub" style="margin-top:10px">Peak hour: <b>${peakH>12?peakH-12:peakH}:00 ${peakH>=12?'PM':'AM'}</b>  -  plan an activity before this time hits.</div>`;
+    el.appendChild(cc);
+  }
+
+  // Triggers
+  if(topT.length){
+    const tc=document.createElement('div');tc.className='ic';
+    const maxC=topT[0][1];
+    tc.innerHTML=`<div class="ic-label">⚡ Your Top Triggers</div>${topT.map(([n,c])=>`<div class="trig-row"><div class="trig-name">${n}</div><div class="trig-track"><div class="trig-fill" style="width:${Math.round((c/maxC)*100)}%"></div></div><div class="trig-ct">×${c}</div></div>`).join('')}`;
+    el.appendChild(tc);
+  }
+
+  // What works
+  if(topS.length){
+    const sc=document.createElement('div');sc.className='ic';
+    sc.innerHTML=`<div class="ic-label">✅ What Works For You</div><div class="strat-grid">${topS.map(([s,c])=>`<div class="strat-chip">${s}<span class="ct">×${c}</span></div>`).join('')}</div><div class="ic-sub" style="margin-top:10px">These are YOUR proven strategies. Reach for these first when an urge hits.</div>`;
+    el.appendChild(sc);
+  }
+
+  // Check-in history
+  if(mem.checkIns.length>0){
+    const lastCI=mem.checkIns[mem.checkIns.length-1];
+    const ci=document.createElement('div');ci.className='ic';
+    ci.innerHTML=`<div class="ic-label">🌅 Last Check-in</div>
+      <div class="ic-sub">Energy: ${'●'.repeat(lastCI.energy)}${'○'.repeat(3-lastCI.energy)} &nbsp;|&nbsp; Mindset: ${'●'.repeat(lastCI.mindset)}${'○'.repeat(3-lastCI.mindset)}</div>
+      <div class="ic-sub" style="margin-top:6px;font-style:italic;color:var(--p2)">"${lastCI.intention}"</div>`;
+    el.appendChild(ci);
+  }
+
+  // Reset
+  const rd=document.createElement('div');rd.style.cssText='text-align:center;padding:8px 0;';
+  const rb=document.createElement('button');rb.style.cssText='background:rgba(242,96,122,0.08);border:1px solid rgba(242,96,122,0.2);border-radius:12px;padding:9px 18px;font-size:12px;font-family:Inter,sans-serif;color:var(--r2);cursor:pointer;';
+  rb.textContent='Reset All Data';
+  rb.onclick=()=>{if(confirm('Delete all behavioral data and start fresh?')){localStorage.removeItem(MK);mem=defMem();mem.sessions=1;saveMem();document.getElementById('streakNum').textContent='0';closePanel('insights');addSysNote('All data cleared. Fresh start  -  day 1 begins now. 💪');}};
+  rd.appendChild(rb);el.appendChild(rd);
+}
+
+/* ══════════════════════════════════════
+   INIT GREETING
+══════════════════════════════════════ */
+setTimeout(()=>{
+  const back=mem.sessions>1,name=mem.userName?`, ${mem.userName}`:'';
+  let g;
+  if(back&&mem.streak>0)g=`Welcome back${name}. **${mem.streak} days strong**  -  I see you showing up.\n\n*I remember everything.* Tell me what today's bringing you.`;
+  else if(back&&mem.relapses>0)g=`Hey${name}  -  coming back after a slip takes real courage. *I'm proud of you for being here.*\n\nWhat's on your mind today?`;
+  else g=`Hey${name}. I'm MindCoach AI  -  I don't just respond to you, *I learn you.*\n\n**The more we talk, the smarter I get** about your triggers, patterns, and exactly what works for your brain. Tap a mood above or just tell me what's happening.`;
+  addMsg('a',g);
+  history.push({role:'assistant',content:g.replace(/<[^>]+>/g,'')});
+  document.getElementById('box').focus();
+  initVoiceToggle();
+  // Show tip if in iframe without speech support
+  if(window._mcEnv && window._mcEnv.isIframe && !window._mcEnv.hasSpeech){
+    setTimeout(function(){
+      addSysNote('💡 Voice & mic need a full tab. Tap the ↗ icon on the artifact to open in new tab.');
+    },1000);
+  }
+},350);
+
+/* ══════════════════════════════════════
+   AI VOICE OUTPUT  -  Web Speech API
+══════════════════════════════════════ */
+let voiceEnabled = localStorage.getItem('mc_voice') === 'true'; // off by default, user enables
+let currentUtterance = null;
+let voiceSpeaking = false;
+
+function initVoiceToggle(){
+  const btn = document.getElementById('voiceToggle');
+  if(voiceEnabled) btn.classList.add('on');
+  else btn.classList.remove('on');
+}
+
+function toggleVoiceOutput(){
+  if(!window.speechSynthesis){
+    addSysNote('Voice not supported on this browser.');
+    return;
+  }
+  voiceEnabled = !voiceEnabled;
+  localStorage.setItem('mc_voice', String(voiceEnabled));
+  var btn = document.getElementById('voiceToggle');
+  btn.classList.toggle('on', voiceEnabled);
+  if(!voiceEnabled){
+    stopVoice();
+    addSysNote('🔇 Voice off');
+  } else {
+    // Speak test IMMEDIATELY inside user gesture — required by Android Chrome
+    window.speechSynthesis.cancel();
+    var test = new SpeechSynthesisUtterance('Voice is on. I will speak every response.');
+    test.rate = 0.92; test.pitch = 1.0; test.volume = 1.0; test.lang = 'en-US';
+    var voices = window.speechSynthesis.getVoices();
+    var best = voices.find(function(v){return v.lang==='en-US';})
+            || voices.find(function(v){return v.lang.startsWith('en');})
+            || voices[0];
+    if(best) test.voice = best;
+    test.onstart = function(){ addSysNote('🔊 Voice ON - coach will speak'); };
+    test.onerror = function(e){
+      if(e.error==='not-allowed'||e.error==='interrupted') return;
+      addSysNote('⚠ Voice error: '+e.error+'. Try reloading.');
+    };
+    window.speechSynthesis.speak(test);
+  }
+}
+
+function speak(text){
+  if(!voiceEnabled) return;
+  if(!window.speechSynthesis) return;
+  stopVoice();
+
+  
+  const clean = text
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g,    '$1')
+    .replace(/`([^`]+)`/g,      '$1')
+    .replace(/<br\s*\/?>/gi,    ' ')
+    .replace(/<[^>]+>/g,        '')
+    .replace(/[\uD800-\uDFFF]/g, '') // remove emoji surrogate pairs (safe cross-browser)
+    .replace(/[\u0080-\u009F]/g, '') // remove control chars only
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if(!clean || clean.length < 3) return;
+
+  
+  function doSpeak(){
+    const voices = window.speechSynthesis.getVoices();
+    const utter  = new SpeechSynthesisUtterance(clean);
+    currentUtterance = utter;
+
+    if(voices.length > 0){
+      const best =
+        voices.find(v => /google.*english|google.*us/i.test(v.name))     ||
+        voices.find(v => /natural|neural|premium/i.test(v.name) && v.lang.startsWith('en')) ||
+        voices.find(v => v.lang === 'en-US')                              ||
+        voices.find(v => v.lang.startsWith('en-'))                        ||
+        voices[0];
+      if(best) utter.voice = best;
+    }
+
+    utter.rate   = 0.90;
+    utter.pitch  = 1.0;
+    utter.volume = 1.0;
+    utter.lang   = 'en-US';
+
+    const bar = document.getElementById('voiceBar');
+    const lbl = document.getElementById('voiceLabel');
+    let keepAlive = null;
+
+    utter.onstart = () => {
+      voiceSpeaking = true;
+      if(bar) bar.className = 'voice-bar speaking';
+      if(lbl){ lbl.className = 'voice-label speaking'; lbl.textContent = 'Coach is speaking\u2026'; }
+      
+      keepAlive = setInterval(() => {
+        if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+      }, 8000);
+    };
+
+    const onDone = () => {
+      voiceSpeaking = false;
+      if(keepAlive){ clearInterval(keepAlive); keepAlive = null; }
+      if(bar) bar.className = 'voice-bar off';
+      if(lbl) lbl.className = 'voice-label';
+      currentUtterance = null;
+    };
+    utter.onend   = onDone;
+    utter.onerror = (e) => { console.warn('Speech error:', e.error); onDone(); };
+
+    window.speechSynthesis.resume(); // ensure not paused
+    window.speechSynthesis.speak(utter);
+  }
+
+  const voices = window.speechSynthesis.getVoices();
+  if(voices.length === 0){
+    
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      setTimeout(doSpeak, 100);
+    };
+    // Fallback: try anyway after 800ms in case event never fires
+    setTimeout(() => {
+      if(currentUtterance === null) doSpeak();
+    }, 800);
+  } else {
+    // Small delay so Android UI settles before speech starts
+    setTimeout(doSpeak, 150);
+  }
+}
+
+function stopVoice(){
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  voiceSpeaking = false;
+  const bar = document.getElementById('voiceBar');
+  if(bar) bar.className = 'voice-bar off';
+  currentUtterance = null;
+}
+
+// Preload voices (Chrome loads them async)
+if(window.speechSynthesis){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+/* ══════════════════════════════════════
+   CLOUD SYNC  -  Persistent Artifact Storage
+   Uses window.storage API (cross-device key-value)
+══════════════════════════════════════ */
+const SYNC_PREFIX = 'mc_profile_';
+let syncCode = localStorage.getItem('mc_synccode') || '';
+
+function setSyncStatus(state, label){
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  const id  = document.getElementById('syncId');
+  dot.className = 'sync-dot ' + state;
+  lbl.textContent = label;
+  if(syncCode) id.textContent = 'Code: ' + syncCode;
+}
+
+async function pushToCloud(){
+  if(!syncCode) return;
+  if(!window.storage||typeof window.storage.set!=='function'){ setSyncStatus('','Sync unavailable'); return; }
+  try {
+    setSyncStatus('syncing','Syncing…');
+    const payload = JSON.stringify({...mem, _ts: Date.now()});
+    await window.storage.set(SYNC_PREFIX + syncCode, payload, true);
+    setSyncStatus('synced','Synced ✓');
+  } catch(e){
+    setSyncStatus('error','Sync failed');
+    console.warn('Sync push failed:',e);
+  }
+}
+
+async function pullFromCloud(code){
+  if(!window.storage||typeof window.storage.get!=='function') return null;
+  try {
+    setSyncStatus('syncing','Loading…');
+    const result = await window.storage.get(SYNC_PREFIX + code, true);
+    if(!result || !result.value) return null;
+    return JSON.parse(result.value);
+  } catch(e){
+    setSyncStatus('error','Load failed');
+    console.warn('Sync pull failed:',e);
+    return null;
+  }
+}
+
+function generateSyncCode(){
+  // 8-char alphanumeric code
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  syncCode = Array.from({length:8}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  localStorage.setItem('mc_synccode', syncCode);
+  document.getElementById('syncCodeDisplay').value = syncCode;
+  setSyncStatus('syncing','Uploading profile…');
+  pushToCloud().then(() => {
+    document.getElementById('syncStatus').textContent = '✓ Profile uploaded. Enter this code on your other device.';
+  });
+}
+
+function copySyncCode(){
+  const code = document.getElementById('syncCodeDisplay').value;
+  if(!code) return;
+  if(navigator.clipboard){navigator.clipboard.writeText(code).then(function() {
+    document.getElementById('syncStatus').textContent = '✓ Code copied to clipboard!';
+    setTimeout(function(){document.getElementById('syncStatus').textContent='';},2000);
+  });}
+  else{document.getElementById('syncStatus').textContent='Copy: '+code;}
+}
+
+async function loadFromCode(){
+  const input = document.getElementById('syncCodeInput').value.trim().toUpperCase();
+  if(input.length < 6){ document.getElementById('syncStatus').textContent = '⚠ Enter a valid sync code.'; return; }
+  document.getElementById('syncStatus').textContent = 'Loading profile…';
+  const remote = await pullFromCloud(input);
+  if(!remote){
+    document.getElementById('syncStatus').textContent = '⚠ No profile found for that code.';
+    return;
+  }
+  // Merge: keep higher streak, combine triggers
+  const merged = {...defMem(), ...remote};
+  if(mem.streak > merged.streak) merged.streak = mem.streak;
+  if(mem.bestStreak > merged.bestStreak) merged.bestStreak = mem.bestStreak;
+  // Merge triggers
+  for(const [k,v] of Object.entries(mem.triggers)) merged.triggers[k] = Math.max(merged.triggers[k]||0, v);
+  merged.sessions = (merged.sessions||0) + 1;
+  mem = merged;
+  syncCode = input;
+  localStorage.setItem('mc_synccode', syncCode);
+  saveMem();
+  document.getElementById('streakNum').textContent = mem.streak;
+  document.getElementById('syncCodeDisplay').value = syncCode;
+  document.getElementById('syncStatus').textContent = '✓ Profile loaded! Your data is now synced.';
+  setSyncStatus('synced', 'Synced ✓');
+  setTimeout(() => closePanel('syncPanel'), 1500);
+  addSysNote(`✓ Profile synced  -  ${mem.streak} day streak restored across devices.`);
+}
+
+// Auto-push to cloud after every send (if synced)
+function autoSync(){
+  if(syncCode&&window.storage&&typeof window.storage.set==='function') pushToCloud();
+}
+
+/* Init sync status on load */
+(async function initSync(){
+  if(!window.storage||typeof window.storage.get!=='function'){
+    setSyncStatus('','Sync not available in this environment');
+    return;
+  }
+  if(syncCode){
+    document.getElementById('syncCodeDisplay').value = syncCode;
+    setSyncStatus('syncing','Checking sync…');
+    const remote = await pullFromCloud(syncCode);
+    if(remote && remote._ts > (mem._ts||0)){
+      
+      const merged = {...mem, ...remote, sessions:(mem.sessions||1)+1};
+      mem = merged; saveMem();
+      document.getElementById('streakNum').textContent = mem.streak;
+      setSyncStatus('synced','Synced ✓  -  profile updated');
+    } else {
+      await pushToCloud();
+      setSyncStatus('synced','Synced ✓');
+    }
+  } else {
+    setSyncStatus('','Not synced  -  tap to set up');
+  }
+})();
+
+
+</script>
+</body>
+</html>
