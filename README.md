@@ -2,7 +2,7 @@
 An AI-powered stress management web app.
 
 ## Live Demo
-https://mindcoach-app.tiiny.site
+https://mindcoach-ai.tiiny.site/
 
 ## Features
 - AI chat for stress management
